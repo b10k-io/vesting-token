@@ -32,15 +32,19 @@ the team will develop a dapp (available at launch) to help holder navigate the t
 
 the holder will be able to connect their wallet and see:
 
-- # of tokens transfered in
-- # of tokens transfered out
-- # of tokens held
-- # of tokens locked
-- # of tokens available
+- nb of tokens transfered in
+- nb of tokens transfered out
+- nb of tokens held
+- nb of tokens locked
+- nb of tokens available
 
 ### 1.1
 
 the holder will be able to buy / sell tokens through the dapp interface
+
+## further utility
+
+at this time there is no further utility proposed by the team. we are happy to assess further utilities proposed by holders.
 
 ## private sale
 
@@ -77,7 +81,17 @@ the following taxes will be applied to the token:
 | tax           | buy   | sell  |
 |---------------|-------|-------|
 | marketing     | 6%    | 8%    |
+| buy + burn    | 2%    | 2%    |
 | governance    | 2%    | 3%    |
 | development   | 2%    | 3%    |
 |---------------|-------|-------|
-| total         | 10%   | 14%   |
+| total         | 12%   | 16%   |
+
+## risks
+
+below is a non-exhaustive list of potential risks + mitigations
+
+| risks | mitigations |
+|-------|-------------|
+| project death | when the lp unlocks token holders will have the choice of voting to add the residual lp to the [B10K.IO] community governance token and receive the equivalent $ amount |
+| rugpull + other | we aim to be transparent and to build a relationship with the community that is why we keep a history of projects on [our website](https://b10k.io). Additionally, we will be co-developing with Anoop *SAFU DEV*. Anoop is the developer behind several multi-million $ projects and will be the contract owner. |
