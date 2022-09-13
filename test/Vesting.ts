@@ -54,33 +54,49 @@ describe("Vesting", () => {
 
     })
 
-    // describe("Transfers", () => {
+    describe("Transfers", () => {
 
-    //     it("Should allow owner to transfer", async () => {
-    //         const { token, owner, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
-    //         const amount = totalSupply.div(10);
+        // it("Should allow owner to transfer", async () => {
+        //     const { token, owner, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+        //     const amount = totalSupply.div(10);
 
-    //         await expect(token.transfer(otherAccount.address, amount)).to.emit(token, "Transfer").withArgs(
-    //             owner.address, otherAccount.address, amount
-    //         );
-    //     })
+        //     await expect(token.transfer(otherAccount.address, amount)).to.emit(token, "Transfer").withArgs(
+        //         owner.address, otherAccount.address, amount
+        //     );
+        // })
 
-    //     it("Should create a vesting schedule", async () => {
-    //         const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
-    //         const amount = totalSupply.div(100);
-    //         expect(await token.getVestingSchedulesBy(otherAccount.address).length).to.equal(0);
-    //         await token.transfer(otherAccount.address, amount);
-    //         expect(await token.getVestingSchedulesBy(otherAccount.address).length).to.equal(1);
+        it("Should create a schedule", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
 
-    //     })
+            let startTimes, totalAmounts;
+            [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address);
+            expect(startTimes.length).to.equal(0);
+            expect(totalAmounts.length).to.equal(0);
 
-    // })
+            await token.transfer(otherAccount.address, amount);
+            
+            [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address)
+            expect(startTimes.length).to.equal(1);
+            expect(totalAmounts.length).to.equal(1);
+        })
 
-    // describe("Vesting Schedules", () => {
+    })
 
-    //     it("Should vest the amount transfered for duration", async () => {
+    describe("Schedules", () => {
 
-    //     })
+        it("Should get schedules by address", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
 
-    // })
+            const tx = await token.transfer(otherAccount.address, amount);
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+            
+            const [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address);
+            expect(startTimes[0]).to.equal(timestamp);
+            expect(totalAmounts[0]).to.equal(amount);
+        })
+
+    })
 })

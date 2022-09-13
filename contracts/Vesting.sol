@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -18,17 +18,15 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
     string private constant _name = "21R0CKET";
     string private constant _symbol = "21R";
 
-    // struct VestingSchedule {
-    //     // beneficiary of tokens
-    //     address beneficiary;
-    //     // start time of the vesting period
-    //     uint256 start;
-    //     // total amount of tokens to be released at the end of the vesting
-    //     uint256 totalAmount;
-    //     // amount released
-    // }
+    struct VestingSchedule {
+        // start time of the vesting period
+        uint startTime;
+        // total amount of tokens to be released at the end of the vesting
+        uint256 totalAmount;
+        // amount released
+    }
 
-    // mapping (address => VestingSchedule[]) private vestingSchedules;
+    mapping (address => VestingSchedule[]) private scheduleList;
 
     constructor(uint256 _totalSupply, uint256 _cliff, uint _duration) ERC20(_name, _symbol) {
         _mint(msg.sender, _totalSupply);
@@ -36,21 +34,35 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         duration = _duration;
     }
 
-    // function _createVestingSchedule(address to, uint256 amount) private {
-    //     uint256 start = block.timestamp;
-    //     VestingSchedule memory schedule = VestingSchedule(to, start, amount);
-    //     VestingSchedule[] storage schedules = vestingSchedules[to];
-    //     schedules.push(schedule);
-    //     vestingSchedules[to] = schedules;
-    // }
+    function getScheduleListByAddress(address beneficiary) public view returns (uint[] memory, uint256[] memory) {
+        VestingSchedule[] memory list = scheduleList[beneficiary];
+        console.log(list.length);
 
-    // function _beforeTransfer(address to, uint256 amount) private {
-    //     _createVestingSchedule(to, amount);
-    // }
+        uint[] memory startTimes = new uint[](list.length);
+        uint256[] memory totalAmounts = new uint256[](list.length);
 
-    // function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-    //     _beforeTransfer(recipient, amount);
-    //     _transfer(msg.sender, recipient, amount);
-    //     return true;
-    // }
+        for(uint i = 0; i < list.length; i++) {
+            VestingSchedule memory schedule = list[i];
+            startTimes[i] = schedule.startTime;
+            totalAmounts[i] = schedule.totalAmount;
+        }
+
+        return (startTimes, totalAmounts);
+    }
+
+    function _createSchedule(address to, uint256 amount) private {
+        uint startTime = block.timestamp;
+        VestingSchedule memory schedule = VestingSchedule(startTime, amount);
+        scheduleList[to].push(schedule);
+    }
+
+    function _beforeTransfer(address to, uint256 amount) private {
+        _createSchedule(to, amount);
+    }
+
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+        _beforeTransfer(recipient, amount);
+        _transfer(msg.sender, recipient, amount);
+        return true;
+    }
 }
