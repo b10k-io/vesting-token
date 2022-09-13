@@ -56,29 +56,18 @@ describe("Vesting", () => {
 
     describe("Transfers", () => {
 
-        // it("Should allow owner to transfer", async () => {
-        //     const { token, owner, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
-        //     const amount = totalSupply.div(10);
-
-        //     await expect(token.transfer(otherAccount.address, amount)).to.emit(token, "Transfer").withArgs(
-        //         owner.address, otherAccount.address, amount
-        //     );
-        // })
-
         it("Should create a schedule", async () => {
             const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
             const amount = totalSupply.div(100);
 
-            let startTimes, totalAmounts;
-            [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address);
+            let startTimes;
+            [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address);
             expect(startTimes.length).to.equal(0);
-            expect(totalAmounts.length).to.equal(0);
 
             await token.transfer(otherAccount.address, amount);
             
-            [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address)
+            [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address)
             expect(startTimes.length).to.equal(1);
-            expect(totalAmounts.length).to.equal(1);
         })
 
     })
@@ -93,9 +82,22 @@ describe("Vesting", () => {
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
             
-            const [ startTimes, totalAmounts ] = await token.getScheduleListByAddress(otherAccount.address);
+            const [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address);
             expect(startTimes[0]).to.equal(timestamp);
-            expect(totalAmounts[0]).to.equal(amount);
+        })
+
+        it("Should get schedule by address and index", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const tx = await token.transfer(otherAccount.address, amount);
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+            
+            const [ startTime, totalAmount, redeemedAmount ] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0);
+            expect(startTime).to.equal(timestamp);
+            expect(totalAmount).to.equal(amount);
+            expect(redeemedAmount).to.equal(ethers.utils.parseEther("0"));
         })
 
     })

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 // Uncomment this line to use console.log
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -23,7 +23,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         uint startTime;
         // total amount of tokens to be released at the end of the vesting
         uint256 totalAmount;
-        // amount released
+        // amount redeemed
+        uint256 redeemedAmount;
     }
 
     mapping (address => VestingSchedule[]) private scheduleList;
@@ -34,25 +35,31 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         duration = _duration;
     }
 
-    function getScheduleListByAddress(address beneficiary) public view returns (uint[] memory, uint256[] memory) {
-        VestingSchedule[] memory list = scheduleList[beneficiary];
-        console.log(list.length);
+    function getScheduleByAddressAndIndex(address beneficiary, uint index) public view returns(uint startTime, uint256 totalAmount, uint256 redeemedAmount) {
+        VestingSchedule memory schedule = scheduleList[beneficiary][index];
+        return (schedule.startTime, schedule.totalAmount, schedule.redeemedAmount);
+    }
 
+    function getScheduleListByAddress(address beneficiary) public view returns (uint[] memory, uint256[] memory, uint256[] memory) {
+        VestingSchedule[] memory list = scheduleList[beneficiary];
+        
         uint[] memory startTimes = new uint[](list.length);
         uint256[] memory totalAmounts = new uint256[](list.length);
+        uint256[] memory redeemedAmounts = new uint256[](list.length);
 
         for(uint i = 0; i < list.length; i++) {
             VestingSchedule memory schedule = list[i];
             startTimes[i] = schedule.startTime;
             totalAmounts[i] = schedule.totalAmount;
+            redeemedAmounts[i] = schedule.redeemedAmount;
         }
 
-        return (startTimes, totalAmounts);
+        return (startTimes, totalAmounts, redeemedAmounts);
     }
 
     function _createSchedule(address to, uint256 amount) private {
         uint startTime = block.timestamp;
-        VestingSchedule memory schedule = VestingSchedule(startTime, amount);
+        VestingSchedule memory schedule = VestingSchedule(startTime, amount, 0);
         scheduleList[to].push(schedule);
     }
 
