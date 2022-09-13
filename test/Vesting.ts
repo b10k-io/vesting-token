@@ -1,4 +1,4 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { time, mine, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
@@ -94,11 +94,29 @@ describe("Vesting", () => {
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
             
-            const [ startTime, totalAmount, redeemedAmount ] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0);
+            const [ startTime, totalAmount, releasedAmount ] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0);
             expect(startTime).to.equal(timestamp);
             expect(totalAmount).to.equal(amount);
-            expect(redeemedAmount).to.equal(ethers.utils.parseEther("0"));
+            expect(releasedAmount).to.equal(ethers.utils.parseEther("0"));
         })
+
+        it("Should get vested amount by address and index", async () => {
+            const { token, otherAccount, totalSupply, cliff, duration } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const tx = await token.transfer(otherAccount.address, amount);
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+
+            const halftime = timestamp + cliff + (duration / 2)
+            await time.setNextBlockTimestamp(halftime)
+            await mine()
+
+            const vestedAmount = amount.div(2)
+
+            expect(await token.getVestedAmountByAddressAndIndex(otherAccount.address, 0)).to.equal(vestedAmount);
+        })
+
 
     })
 })

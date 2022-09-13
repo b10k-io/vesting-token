@@ -23,8 +23,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         uint startTime;
         // total amount of tokens to be released at the end of the vesting
         uint256 totalAmount;
-        // amount redeemed
-        uint256 redeemedAmount;
+        // amount released
+        uint256 releasedAmount;
     }
 
     mapping (address => VestingSchedule[]) private scheduleList;
@@ -35,26 +35,44 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         duration = _duration;
     }
 
-    function getScheduleByAddressAndIndex(address beneficiary, uint index) public view returns(uint startTime, uint256 totalAmount, uint256 redeemedAmount) {
+    function _vestedAmount(VestingSchedule memory schedule) private view returns (uint256) {
+        uint256 totalAmount = schedule.totalAmount;
+        uint startTime = schedule.startTime;
+
+        if (block.timestamp < startTime.add(cliff)) {
+            return 0;
+        } else if (block.timestamp >= startTime.add(cliff).add(duration)) {
+            return totalAmount;
+        } else {
+            return totalAmount.mul(block.timestamp.sub(startTime.add(cliff))).div(duration);
+        }
+    }
+
+    function getVestedAmountByAddressAndIndex(address beneficiary, uint index) public view returns (uint256) {
         VestingSchedule memory schedule = scheduleList[beneficiary][index];
-        return (schedule.startTime, schedule.totalAmount, schedule.redeemedAmount);
+        return _vestedAmount(schedule);
+    }
+
+    function getScheduleByAddressAndIndex(address beneficiary, uint index) public view returns(uint, uint256, uint256) {
+        VestingSchedule memory schedule = scheduleList[beneficiary][index];
+        return (schedule.startTime, schedule.totalAmount, schedule.releasedAmount);
     }
 
     function getScheduleListByAddress(address beneficiary) public view returns (uint[] memory, uint256[] memory, uint256[] memory) {
         VestingSchedule[] memory list = scheduleList[beneficiary];
-        
+
         uint[] memory startTimes = new uint[](list.length);
         uint256[] memory totalAmounts = new uint256[](list.length);
-        uint256[] memory redeemedAmounts = new uint256[](list.length);
+        uint256[] memory releasedAmounts = new uint256[](list.length);
 
         for(uint i = 0; i < list.length; i++) {
             VestingSchedule memory schedule = list[i];
             startTimes[i] = schedule.startTime;
             totalAmounts[i] = schedule.totalAmount;
-            redeemedAmounts[i] = schedule.redeemedAmount;
+            releasedAmounts[i] = schedule.releasedAmount;
         }
 
-        return (startTimes, totalAmounts, redeemedAmounts);
+        return (startTimes, totalAmounts, releasedAmounts);
     }
 
     function _createSchedule(address to, uint256 amount) private {
