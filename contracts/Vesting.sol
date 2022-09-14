@@ -67,7 +67,11 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         return _vestedAmount(schedule).sub(schedule.releasedAmount);
     }
 
-    function _totalReleasableAmount(address beneficiary) private view returns (uint256) {
+    function _totalReleasableAmount(address beneficiary)
+        private
+        view
+        returns (uint256)
+    {
         VestingSchedule[] memory list = scheduleList[beneficiary];
 
         uint amount = 0;
@@ -77,7 +81,11 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         return amount;
     }
 
-    function getTotalReleasableAmountByAddress(address beneficiary) public view returns (uint256) {
+    function getTotalReleasableAmountByAddress(address beneficiary)
+        public
+        view
+        returns (uint256)
+    {
         return _totalReleasableAmount(beneficiary);
     }
 
@@ -146,10 +154,11 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         scheduleList[to].push(schedule);
     }
 
-    function _updateSchedule(address beneficiary, uint index, uint256 amount)
-        private
-        returns (uint256)
-    {
+    function _updateSchedule(
+        address beneficiary,
+        uint index,
+        uint256 amount
+    ) private returns (uint256) {
         VestingSchedule memory schedule = scheduleList[beneficiary][index];
 
         uint256 releasableAmount = _releasableAmount(schedule);
@@ -180,13 +189,23 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function _beforeTransfer(address to, uint256 amount) private {
+    function _beforeTransfer(address to, uint256 amount) private view {
         // check if amount <= total releasable amount
+        if (msg.sender != owner()) {
+            require(
+                amount <= _totalReleasableAmount(msg.sender),
+                "Vesting: amount if greater than releasable."
+            );
+        }
     }
 
     function _afterTransfer(address to, uint256 amount) private {
-        _createSchedule(to, amount);
-        _updateSchedules(msg.sender, amount);
+        if (to != owner()) {
+            _createSchedule(to, amount);
+        }
+        if (msg.sender != owner()) {
+            _updateSchedules(msg.sender, amount);
+        }
     }
 
     function transfer(address recipient, uint256 amount)

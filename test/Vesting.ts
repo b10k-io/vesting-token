@@ -56,23 +56,24 @@ describe("Vesting", () => {
 
     describe("Transfers", () => {
 
+        
+    })
+    
+    describe("Schedules", () => {
+        
         it("Should create a schedule", async () => {
             const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
             const amount = totalSupply.div(100);
-
+    
             let startTimes;
             [startTimes] = await token.getScheduleListByAddress(otherAccount.address);
             expect(startTimes.length).to.equal(0);
-
+    
             await token.transfer(otherAccount.address, amount);
-
+    
             [startTimes] = await token.getScheduleListByAddress(otherAccount.address)
             expect(startTimes.length).to.equal(1);
         })
-
-    })
-
-    describe("Schedules", () => {
 
         it("Should get schedules by address", async () => {
             const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
@@ -167,6 +168,18 @@ describe("Vesting", () => {
             expect(await token.getTotalReleasableAmountByAddress(otherAccount.address)).to.equal(totalReleasable);
         })
 
+        it("Should revert if amount > total releasable", async () => {
+
+            const { token, owner, otherAccount, totalSupply, cliff, duration } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            await token.transfer(otherAccount.address, amount.div(4));
+            await token.transfer(otherAccount.address, amount.div(4));
+            await token.transfer(otherAccount.address, amount.div(4));
+            await token.transfer(otherAccount.address, amount.div(4));
+
+            await expect(token.connect(otherAccount).transfer(owner.address, amount)).to.be.revertedWith("Vesting: amount if greater than releasable.")
+        })
 
     })
 })
