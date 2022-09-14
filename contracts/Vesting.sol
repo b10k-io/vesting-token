@@ -67,6 +67,20 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         return _vestedAmount(schedule).sub(schedule.releasedAmount);
     }
 
+    function _totalReleasableAmount(address beneficiary) private view returns (uint256) {
+        VestingSchedule[] memory list = scheduleList[beneficiary];
+
+        uint amount = 0;
+        for (uint i = 0; i < list.length; i++) {
+            amount = amount.add(_releasableAmount(list[i]));
+        }
+        return amount;
+    }
+
+    function getTotalReleasableAmountByAddress(address beneficiary) public view returns (uint256) {
+        return _totalReleasableAmount(beneficiary);
+    }
+
     function getVestedAmountByAddressAndIndex(address beneficiary, uint index)
         public
         view

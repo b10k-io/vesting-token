@@ -61,12 +61,12 @@ describe("Vesting", () => {
             const amount = totalSupply.div(100);
 
             let startTimes;
-            [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address);
+            [startTimes] = await token.getScheduleListByAddress(otherAccount.address);
             expect(startTimes.length).to.equal(0);
 
             await token.transfer(otherAccount.address, amount);
-            
-            [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address)
+
+            [startTimes] = await token.getScheduleListByAddress(otherAccount.address)
             expect(startTimes.length).to.equal(1);
         })
 
@@ -81,8 +81,8 @@ describe("Vesting", () => {
             const tx = await token.transfer(otherAccount.address, amount);
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
-            
-            const [ startTimes ] = await token.getScheduleListByAddress(otherAccount.address);
+
+            const [startTimes] = await token.getScheduleListByAddress(otherAccount.address);
             expect(startTimes[0]).to.equal(timestamp);
         })
 
@@ -93,8 +93,8 @@ describe("Vesting", () => {
             const tx = await token.transfer(otherAccount.address, amount);
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
-            
-            const [ startTime, totalAmount, releasedAmount ] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0);
+
+            const [startTime, totalAmount, releasedAmount] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0);
             expect(startTime).to.equal(timestamp);
             expect(totalAmount).to.equal(amount);
             expect(releasedAmount).to.equal(ethers.utils.parseEther("0"));
@@ -138,6 +138,33 @@ describe("Vesting", () => {
             await mine()
 
             expect(await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0)).to.equal(releasableAmount);
+        })
+
+        it("Should get total releasable amount for address", async () => {
+            const { token, owner, otherAccount, totalSupply, cliff, duration } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const tx = await token.transfer(otherAccount.address, amount.div(2));
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+
+            const ONE_FOURTH_TS = timestamp + cliff + (duration / 4)
+            const ONE_HALF_TS = timestamp + cliff + (duration / 2)
+
+            await time.setNextBlockTimestamp(ONE_FOURTH_TS)
+            await mine()
+
+            await token.transfer(otherAccount.address, amount.div(2));
+
+            await time.setNextBlockTimestamp(ONE_HALF_TS)
+            await mine()
+
+            const releasable0 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0);
+            const releasable1 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 1);
+
+            const totalReleasable = releasable0.add(releasable1)
+
+            expect(await token.getTotalReleasableAmountByAddress(otherAccount.address)).to.equal(totalReleasable);
         })
 
 
