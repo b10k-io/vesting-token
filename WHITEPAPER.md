@@ -102,6 +102,8 @@ Linear vesting is the process of releasing tokens to holders in a progressive ma
 
 In the case of TwentyOne, holders are vested through linear vesting for 21 days with a 21 second cliff.
 
+![Linear Vesting (Hourly)](https://user-images.githubusercontent.com/85317525/190176226-7e983b21-1613-4d9e-990a-f4b2af1ed590.svg)
+
 - 21 second cliff = holders will not be able to sell tokens for 21 seconds after buying.
 - 21 day vesting = after 21 hours, ~0.0000551% tokens are released every second.
 
