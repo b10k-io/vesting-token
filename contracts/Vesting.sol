@@ -12,15 +12,19 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract Vesting is ERC20, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
-    uint public cliff;
-    uint public duration;
+    uint public defaultCliff;
+    uint public defaultDuration;
 
-    string private constant _name = "21R0CKET";
-    string private constant _symbol = "21R";
+    string private constant _name = "TwentyOne";
+    string private constant _symbol = "21";
 
     struct VestingSchedule {
         // start time of the vesting period
         uint startTime;
+        // cliff of the vesting period
+        uint cliff;
+        // duration of the vesting period
+        uint duration;
         // total amount of tokens to be released at the end of the vesting
         uint256 totalAmount;
         // amount released
@@ -35,8 +39,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         uint _duration
     ) ERC20(_name, _symbol) {
         _mint(msg.sender, _totalSupply);
-        cliff = _cliff;
-        duration = _duration;
+        defaultCliff = _cliff;
+        defaultDuration = _duration;
     }
 
     // PRIVATE VIEW VESTING FUNCTIONS
@@ -47,14 +51,14 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         returns (uint256)
     {
 
-        if (block.timestamp < schedule.startTime.add(cliff)) {
+        if (block.timestamp < schedule.startTime.add(schedule.cliff)) {
             return 0;
-        } else if (block.timestamp >= schedule.startTime.add(cliff).add(duration)) {
+        } else if (block.timestamp >= schedule.startTime.add(schedule.cliff).add(schedule.duration)) {
             return schedule.totalAmount;
         } else {
             return
-                schedule.totalAmount.mul(block.timestamp.sub(schedule.startTime.add(cliff))).div(
-                    duration
+                schedule.totalAmount.mul(block.timestamp.sub(schedule.startTime.add(schedule.cliff))).div(
+                    schedule.duration
                 );
         }
     }
@@ -164,6 +168,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         view
         returns (
             uint,
+            uint,
+            uint,
             uint256,
             uint256
         )
@@ -171,6 +177,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         VestingSchedule memory schedule = _schedule(beneficiary, index);
         return (
             schedule.startTime,
+            schedule.cliff,
+            schedule.duration,
             schedule.totalAmount,
             schedule.releasedAmount
         );
@@ -190,9 +198,9 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
 
     // PRIVATE ACTIONS
 
-    function _createSchedule(address to, uint256 amount) private {
+    function _createSchedule(address to, uint cliff, uint duration, uint256 amount) private {
         uint startTime = block.timestamp;
-        VestingSchedule memory schedule = VestingSchedule(startTime, amount, 0);
+        VestingSchedule memory schedule = VestingSchedule(startTime, cliff, duration, amount, 0);
         scheduleList[to].push(schedule);
     }
 
@@ -243,7 +251,7 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
 
     function _afterTransfer(address to, uint256 amount) private {
         if (to != owner()) {
-            _createSchedule(to, amount);
+            _createSchedule(to, defaultCliff, defaultDuration, amount);
         }
         if (msg.sender != owner()) {
             _updateSchedules(msg.sender, amount);
