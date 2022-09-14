@@ -13,9 +13,9 @@ So, TwentyOne is rewriting the rules slightly:
 
 TwentyOne is a token that is constructed to allow holders to benefit from the long-term growth and adoption, versus the traditional short-term holding that can be experienced on the market. This is achieved through the linear vesting mechanism built into the token, limiting the selling pressure helping the token price appreciate over time.
 
-From time of purchase, holders will be vested linearly for 21 days with a 21 second cliff.
+From time of purchase, holders will be vested linearly for *21 days* with a *21 second* cliff.
 
-TwentyOne will be made available on the BNB Chain (formally Binance Smart Chain).
+TwentyOne will be made available on the [BNB Chain](https://bnbchain.org) (formally Binance Smart Chain).
 
 Note that TwentyOne is an experimental token, the outcome is not guarenteed.
 
@@ -23,9 +23,9 @@ Note that TwentyOne is an experimental token, the outcome is not guarenteed.
 
 TwentyOne is a community owned project.
 
-Holders will be able to vote on initiatives, for example, adding a utility aspect, or on how to use the community funds. These votes will be completed through a purpose built DAO.
+Holders will be able to vote on initiatives, for example, adding a utility aspect, or on how to use the Community Reserves. These votes will be completed through a purpose built DAO.
 
-The management team will assume the role of trustees and will be responsible for implementing approved proposals and safeguarding the community funds.
+The management team will assume the role of stewards and will be responsible for implementing approved proposals and safeguarding the Community Reserves.
 
 There will be fees associated with pushing community initiatives. These fees will go to the community funds.
 
@@ -35,7 +35,7 @@ There will be fees associated with pushing community initiatives. These fees wil
 Voting weight will be proportional to the total token balance at time of vote.
 
 Any holder can create a proposal.
-Proposals with over 50% “for” votes will be passed and implemented.
+Proposals with over 50% "for" votes will be passed and implemented.
 
 The community will be available on Telegram and Twitter.
 
@@ -62,9 +62,12 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 
 ### Supply
 
-| Total Supply  | 21,000,000 |
-| Initial MCap  | TBD |
-| Launch price  | TBD |
+|---------------|---------------|
+| Total Supply  | 21,000,000    |
+| Initial MCap  | TBD           |
+| Private Price | TBD           |
+| Presale Price | TBD           |
+| Launch Price  | TBD           |
 
 ### Tax
 
@@ -98,8 +101,8 @@ Linear vesting is the process of releasing tokens to holders in a progressive ma
 
 In the case of TwentyOne, holders are vested through linear vesting for 21 days with a 21 second cliff.
 
-21 second cliff = holders will not be able to sell tokens for 21 seconds after buying.
-21 day vesting = after 21 hours, ~0.0000551% tokens are released every second.
+- 21 second cliff = holders will not be able to sell tokens for 21 seconds after buying.
+- 21 day vesting = after 21 hours, ~0.0000551% tokens are released every second.
 
 You will be able to sell the vested tokens directly through pancakeswap or via the dapp swap.
 
@@ -113,7 +116,7 @@ Up to you to figure out how. :)
 
 ### What is the utility behind this project?
 
-No staking. No rewards. No NFTs.
+No staking. No rewards. No NFTs. Well at least not yet!
 
 This is an experimental token, exploring whether algorithmically spreading sell pressure overtime can support the long term viability of a project.
 
@@ -141,5 +144,5 @@ below is a non-exhaustive list of potential risks + mitigations
 
 | risks | mitigations |
 |-------|-------------|
-| project death | when the lp unlocks token holders will have the choice of voting to add the residual lp to the [B10K.IO] community governance token and receive the equivalent $ amount |
-| rugpull + other | we aim to be transparent and to build a relationship with the community that is why we keep a history of projects on [our website](https://b10k.io). Additionally, we will be co-developing with a SAFU DEV who will be the contract owner. |
+| Project death | when the lp unlocks token holders will have the choice of voting to add the residual lp to the [B10K.IO] community governance token and receive the equivalent $ amount |
+| Rugpull + other | we aim to be transparent and to build a relationship with the community that is why we keep a history of projects on [our website](https://b10k.io). Additionally, we will be co-developing with a SAFU DEV who will be the contract owner. |
