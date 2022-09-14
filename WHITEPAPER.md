@@ -60,8 +60,9 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 
 ## Tokenomics
 
-### Supply
+### General
 
+| Metric        | Data          |
 |---------------|---------------|
 | Total Supply  | 21,000,000    |
 | Initial MCap  | TBD           |
@@ -137,12 +138,3 @@ We are also counting on word-of-mouth. Since the token has in-built vesting, all
 Once the DAO is up and running, marketing initiatives will be voted on through the there.
 
 The token stewards will be responsible for implementing initiatives.
-
-## Risks + Mitigations
-
-below is a non-exhaustive list of potential risks + mitigations
-
-| risks | mitigations |
-|-------|-------------|
-| Project death | when the lp unlocks token holders will have the choice of voting to add the residual lp to the [B10K.IO] community governance token and receive the equivalent $ amount |
-| Rugpull + other | we aim to be transparent and to build a relationship with the community that is why we keep a history of projects on [our website](https://b10k.io). Additionally, we will be co-developing with a SAFU DEV who will be the contract owner. |
