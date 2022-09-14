@@ -50,11 +50,11 @@ The dashboard will contain basic project metrics and account metrics. A swap wil
 Additionally a DAO interface will be made available, allowing holders to view and create and engage with proposals.
 
 
-| Version   | Features |
-|-----------|----------|
-| 1.0       | Connect your wallet in order to view holdings and vesting data |
-| 1.1       | Built-in swap |
-| 2.0       | DAO interface + contract |
+| Version   | Features                                                          |
+|-----------|-------------------------------------------------------------------|
+| 1.0       | Connect your wallet in order to view holdings and vesting data    |
+| 1.1       | Built-in swap                                                     |
+| 2.0       | DAO interface + contract                                          |
 
 Throught the contract api + DAO, further concepts can be proposed by the community.
 
@@ -72,14 +72,13 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 
 ### Tax
 
-| Tax                   | Buy   | Sell  |
-|-----------------------|-------|-------|
-| Marketing             | 6.3%  | 8.4%  |
-| Community Reserves    | 2.1%  | 4.2%  |
-| Governance            | 2.1%  | 2.1%  |
-| Development           | 2.1%  | 2.1%  |
-|                       |       |       |
-| Total                 | 12.6% | 16.8% |
+| Tax                   | Buy       | Sell      |
+|-----------------------|-----------|-----------|
+| Marketing             | 6.3%      | 8.4%      |
+| Community Reserves    | 2.1%      | 4.2%      |
+| Governance            | 2.1%      | 2.1%      |
+| Development           | 2.1%      | 2.1%      |
+| *Total*               | *12.6%*   | *16.8%*   |
 
 ### Initial Distribution
 
@@ -89,8 +88,7 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 | Presale   | 10.5%     | 21s   | 21d       |
 | Team      | 10.5%     | 21d*  | 126d      |
 | Public    | 68.5%     | 21s   | 21d       |
-|           |           |       |           |
-| Total     | 100%      |       |           |
+| *Total*   | *100%*    |       |           |
 
 *The contract owner has the ability to create special vesting schedules. Their minimum cliff + duration is equal to the preset cliff + duration.
 
