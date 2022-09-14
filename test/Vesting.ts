@@ -108,13 +108,36 @@ describe("Vesting", () => {
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
 
-            const halftime = timestamp + cliff + (duration / 2)
-            await time.setNextBlockTimestamp(halftime)
+            const ONE_HALF_TS = timestamp + cliff + (duration / 2)
+            await time.setNextBlockTimestamp(ONE_HALF_TS)
             await mine()
 
             const vestedAmount = amount.div(2)
 
             expect(await token.getVestedAmountByAddressAndIndex(otherAccount.address, 0)).to.equal(vestedAmount);
+        })
+
+        it("Should get releasable amount by address and index", async () => {
+            const { token, owner, otherAccount, totalSupply, cliff, duration } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const tx = await token.transfer(otherAccount.address, amount);
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+
+            const releasableAmount = amount.div(4)
+
+            const ONE_FOURTH_TS = timestamp + cliff + (duration / 4)
+            await time.setNextBlockTimestamp(ONE_FOURTH_TS)
+            await mine()
+            expect(await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0)).to.equal(releasableAmount);
+            await token.connect(otherAccount).transfer(owner.address, releasableAmount);
+
+            const ONE_HALF_TS = timestamp + cliff + (duration / 2)
+            await time.setNextBlockTimestamp(ONE_HALF_TS)
+            await mine()
+
+            expect(await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0)).to.equal(releasableAmount);
         })
 
 
