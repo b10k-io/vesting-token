@@ -39,42 +39,36 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         duration = _duration;
     }
 
+    // PRIVATE VIEW VESTING FUNCTIONS
+
     function _vestedAmount(VestingSchedule memory schedule)
         private
         view
         returns (uint256)
     {
-        uint256 totalAmount = schedule.totalAmount;
-        uint startTime = schedule.startTime;
 
-        if (block.timestamp < startTime.add(cliff)) {
+        if (block.timestamp < schedule.startTime.add(cliff)) {
             return 0;
-        } else if (block.timestamp >= startTime.add(cliff).add(duration)) {
-            return totalAmount;
+        } else if (block.timestamp >= schedule.startTime.add(cliff).add(duration)) {
+            return schedule.totalAmount;
         } else {
             return
-                totalAmount.mul(block.timestamp.sub(startTime.add(cliff))).div(
+                schedule.totalAmount.mul(block.timestamp.sub(schedule.startTime.add(cliff))).div(
                     duration
                 );
         }
     }
 
-    function _totalVestedAmount(address beneficiary) private view returns (uint256) {
-        VestingSchedule[] memory list = scheduleList[beneficiary];
-
-        uint amount = 0;
-        for (uint i = 0; i < list.length; i++) {
-            amount = amount.add(_vestedAmount(list[i]));
-        }
-        return amount;
-    }
-
-    function getTotalVestedAmountByAddress(address beneficiary)
-        public
+    function _totalVestedAmount(address beneficiary)
+        private
         view
         returns (uint256)
     {
-        return _totalVestedAmount(beneficiary);
+        uint amount = 0;
+        for (uint i = 0; i < scheduleList[beneficiary].length; i++) {
+            amount = amount.add(_vestedAmount(_schedule(beneficiary, i)));
+        }
+        return amount;
     }
 
     function _releasableAmount(VestingSchedule memory schedule)
@@ -90,59 +84,25 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         view
         returns (uint256)
     {
-        VestingSchedule[] memory list = scheduleList[beneficiary];
-
         uint amount = 0;
-        for (uint i = 0; i < list.length; i++) {
-            amount = amount.add(_releasableAmount(list[i]));
+        for (uint i = 0; i < scheduleList[beneficiary].length; i++) {
+            amount = amount.add(_releasableAmount(_schedule(beneficiary, i)));
         }
         return amount;
     }
 
-    function getTotalReleasableAmountByAddress(address beneficiary)
-        public
-        view
-        returns (uint256)
-    {
-        return _totalReleasableAmount(beneficiary);
-    }
-
-    function getVestedAmountByAddressAndIndex(address beneficiary, uint index)
-        public
-        view
-        returns (uint256)
-    {
-        VestingSchedule memory schedule = scheduleList[beneficiary][index];
-        return _vestedAmount(schedule);
-    }
-
-    function getReleasableAmountByAddressAndIndex(
-        address beneficiary,
-        uint index
-    ) public view returns (uint256) {
-        VestingSchedule memory schedule = scheduleList[beneficiary][index];
-        return _releasableAmount(schedule);
-    }
-
-    function getScheduleByAddressAndIndex(address beneficiary, uint index)
-        public
+    function _schedule(address beneficiary, uint index)
+        private
         view
         returns (
-            uint,
-            uint256,
-            uint256
+            VestingSchedule memory
         )
     {
-        VestingSchedule memory schedule = scheduleList[beneficiary][index];
-        return (
-            schedule.startTime,
-            schedule.totalAmount,
-            schedule.releasedAmount
-        );
+        return scheduleList[beneficiary][index];
     }
 
-    function getScheduleListByAddress(address beneficiary)
-        public
+    function _schedules(address beneficiary)
+        private
         view
         returns (
             uint[] memory,
@@ -157,7 +117,7 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
         uint256[] memory releasedAmounts = new uint256[](list.length);
 
         for (uint i = 0; i < list.length; i++) {
-            VestingSchedule memory schedule = list[i];
+            VestingSchedule memory schedule = _schedule(beneficiary, i);
             startTimes[i] = schedule.startTime;
             totalAmounts[i] = schedule.totalAmount;
             releasedAmounts[i] = schedule.releasedAmount;
@@ -165,6 +125,70 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
 
         return (startTimes, totalAmounts, releasedAmounts);
     }
+
+    // PUBLIC VIEW VESTING FUNCTIONS
+
+    function getVestedAmountByAddressAndIndex(address beneficiary, uint index)
+        public
+        view
+        returns (uint256)
+    {
+        return _vestedAmount(_schedule(beneficiary, index));
+    }
+
+    function getTotalVestedAmountByAddress(address beneficiary)
+        public
+        view
+        returns (uint256)
+    {
+        return _totalVestedAmount(beneficiary);
+    }
+
+    function getReleasableAmountByAddressAndIndex(
+        address beneficiary,
+        uint index
+    ) public view returns (uint256) {
+        return _releasableAmount(_schedule(beneficiary, index));
+    }
+
+    function getTotalReleasableAmountByAddress(address beneficiary)
+        public
+        view
+        returns (uint256)
+    {
+        return _totalReleasableAmount(beneficiary);
+    }
+
+    function getScheduleByAddressAndIndex(address beneficiary, uint index)
+        public
+        view
+        returns (
+            uint,
+            uint256,
+            uint256
+        )
+    {
+        VestingSchedule memory schedule = _schedule(beneficiary, index);
+        return (
+            schedule.startTime,
+            schedule.totalAmount,
+            schedule.releasedAmount
+        );
+    }
+
+    function getSchedulesByAddress(address beneficiary)
+        public
+        view
+        returns (
+            uint[] memory,
+            uint256[] memory,
+            uint256[] memory
+        )
+    {
+        return _schedules(beneficiary);
+    }
+
+    // PRIVATE ACTIONS
 
     function _createSchedule(address to, uint256 amount) private {
         uint startTime = block.timestamp;
@@ -225,6 +249,8 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
             _updateSchedules(msg.sender, amount);
         }
     }
+
+    // PUBLIC ACTIONS
 
     function transfer(address recipient, uint256 amount)
         public

@@ -66,12 +66,12 @@ describe("Vesting", () => {
             const amount = totalSupply.div(100);
     
             let startTimes;
-            [startTimes] = await token.getScheduleListByAddress(otherAccount.address);
+            [startTimes] = await token.getSchedulesByAddress(otherAccount.address);
             expect(startTimes.length).to.equal(0);
     
             await token.transfer(otherAccount.address, amount);
     
-            [startTimes] = await token.getScheduleListByAddress(otherAccount.address)
+            [startTimes] = await token.getSchedulesByAddress(otherAccount.address)
             expect(startTimes.length).to.equal(1);
         })
 
@@ -83,7 +83,7 @@ describe("Vesting", () => {
             const receipt = await tx.wait()
             const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
 
-            const [startTimes] = await token.getScheduleListByAddress(otherAccount.address);
+            const [startTimes] = await token.getSchedulesByAddress(otherAccount.address);
             expect(startTimes[0]).to.equal(timestamp);
         })
 
