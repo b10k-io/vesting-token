@@ -13,7 +13,7 @@ So, TwentyOne is rewriting the rules slightly:
 
 TwentyOne is a token that is constructed to allow holders to benefit from the long-term growth and adoption, versus the traditional short-term holding that can be experienced on the market. This is achieved through the linear vesting mechanism built into the token, limiting the selling pressure helping the token price appreciate over time.
 
-From time of purchase, holders will be vested linearly for *21 days* with a *21 second* cliff.
+From time of purchase, holders will be vested linearly for **21 days** with a **21 second** cliff.
 
 TwentyOne will be made available on the [BNB Chain](https://bnbchain.org) (formally Binance Smart Chain).
 
@@ -78,7 +78,7 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 | Community Reserves    | 2.1%      | 4.2%      |
 | Governance            | 2.1%      | 2.1%      |
 | Development           | 2.1%      | 2.1%      |
-| *Total*               | *12.6%*   | *16.8%*   |
+| **Total**             | **12.6%** | **16.8%** |
 
 ### Initial Distribution
 
@@ -88,7 +88,7 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 | Presale   | 10.5%     | 21s   | 21d       |
 | Team      | 10.5%     | 21d*  | 126d      |
 | Public    | 68.5%     | 21s   | 21d       |
-| *Total*   | *100%*    |       |           |
+| **Total** | **100%**  |       |           |
 
 *The contract owner has the ability to create special vesting schedules. Their minimum cliff + duration is equal to the preset cliff + duration.
 
@@ -98,7 +98,7 @@ Throught the contract api + DAO, further concepts can be proposed by the communi
 
 Linear vesting is the process of releasing tokens to holders in a progressive manner. 
 
-In the case of TwentyOne, holders are vested through linear vesting for 21 days with a 21 second cliff.
+In the case of TwentyOne, holders are vested through linear vesting for **21 days** with a **21 second** cliff.
 
 ![Linear Vesting (Hourly)](https://user-images.githubusercontent.com/85317525/190176226-7e983b21-1613-4d9e-990a-f4b2af1ed590.svg)
 
