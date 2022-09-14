@@ -3,15 +3,13 @@ Spread the word. Spread sell pressure.
 
 ## Overview
 
-> “If you aren’t willing to own a stock for 10 years, don’t even think about owning it for 10 minutes.”
-- Warren Buffet
+> If you aren’t willing to own a stock for 10 years, don’t even think about owning it for 10 minutes. - Warren Buffet
 
 While this quote is inspiring, things in crypto move much faster than in the stock market.
 
 So, TwentyOne is rewriting the rules slightly:
 
-> If you aren’t willing to own a token for 21 days, don’t even think about owning it for 21 seconds.
-- TwentyOne
+> If you aren’t willing to own a token for 21 days, don’t even think about owning it for 21 seconds. - TwentyOne
 
 TwentyOne is a token that is constructed to allow holders to benefit from the long-term growth and adoption, versus the traditional short-term holding that can be experienced on the market. This is achieved through the linear vesting mechanism built into the token, limiting the selling pressure helping the token price appreciate over time.
 
