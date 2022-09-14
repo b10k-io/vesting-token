@@ -151,6 +151,7 @@ describe("Vesting", () => {
 
             const ONE_FOURTH_TS = timestamp + cliff + (duration / 4)
             const ONE_HALF_TS = timestamp + cliff + (duration / 2)
+            const THREE_FOURTH_TS = timestamp + cliff + (duration / 3 * 4)
 
             await time.setNextBlockTimestamp(ONE_FOURTH_TS)
             await mine()
@@ -160,13 +161,17 @@ describe("Vesting", () => {
             await time.setNextBlockTimestamp(ONE_HALF_TS)
             await mine()
 
-            // UPDATE THIS FOR TO USE TOTAL VESTED AMOUNT 
-            // Transfer tokens out of wallet to reduce releasable
-            // Compare from total vested.
-            const releasable0 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0);
-            const releasable1 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 1);
+            let totalVested
+            totalVested = await token.getTotalVestedAmountByAddress(otherAccount.address);
+            const released = totalVested;
 
-            const totalReleasable = releasable0.add(releasable1)
+            await token.connect(otherAccount).transfer(owner.address, released);
+
+            await time.setNextBlockTimestamp(THREE_FOURTH_TS);
+            await mine()
+
+            totalVested = await token.getTotalVestedAmountByAddress(otherAccount.address);
+            const totalReleasable = totalVested.sub(released);
 
             expect(await token.getTotalReleasableAmountByAddress(otherAccount.address)).to.equal(totalReleasable);
         })
