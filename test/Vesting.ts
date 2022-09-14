@@ -160,6 +160,9 @@ describe("Vesting", () => {
             await time.setNextBlockTimestamp(ONE_HALF_TS)
             await mine()
 
+            // UPDATE THIS FOR TO USE TOTAL VESTED AMOUNT 
+            // Transfer tokens out of wallet to reduce releasable
+            // Compare from total vested.
             const releasable0 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 0);
             const releasable1 = await token.getReleasableAmountByAddressAndIndex(otherAccount.address, 1);
 
@@ -179,6 +182,33 @@ describe("Vesting", () => {
             await token.transfer(otherAccount.address, amount.div(4));
 
             await expect(token.connect(otherAccount).transfer(owner.address, amount)).to.be.revertedWith("Vesting: amount if greater than releasable.")
+        })
+
+        it("Should get total vested amount for address", async () => {
+            const { token, owner, otherAccount, totalSupply, cliff, duration } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const tx = await token.transfer(otherAccount.address, amount.div(2));
+            const receipt = await tx.wait()
+            const { timestamp } = await ethers.provider.getBlock(receipt.blockHash)
+
+            const ONE_FOURTH_TS = timestamp + cliff + (duration / 4)
+            const ONE_HALF_TS = timestamp + cliff + (duration / 2)
+
+            await time.setNextBlockTimestamp(ONE_FOURTH_TS)
+            await mine()
+
+            await token.transfer(otherAccount.address, amount.div(2));
+
+            await time.setNextBlockTimestamp(ONE_HALF_TS)
+            await mine()
+
+            const vestedAmount0 = await token.getVestedAmountByAddressAndIndex(otherAccount.address, 0);
+            const vestedAmount1 = await token.getVestedAmountByAddressAndIndex(otherAccount.address, 1);
+
+            const totalVestedAmount = vestedAmount0.add(vestedAmount1)
+
+            expect(await token.getTotalVestedAmountByAddress(otherAccount.address)).to.equal(totalVestedAmount);
         })
 
     })
