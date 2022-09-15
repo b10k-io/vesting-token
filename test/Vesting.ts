@@ -10,19 +10,19 @@ describe("Vesting", () => {
     async function deployVestingFixture() {
         const TWENTY_ONE_MILLION_ETHER = ethers.utils.parseEther("21000000")
         const TWENTY_ONE_DAYS_IN_SECS = 21 * 24 * 60 * 60;
-        const TWO_POINT_ON_MINUTES_IN_SECS = 21 * 60 / 10;
+        const TWENTY_ONE_SECS = 21;
 
         const totalSupply = TWENTY_ONE_MILLION_ETHER
         const defaultDuration = TWENTY_ONE_DAYS_IN_SECS
-        const defaultCliff = TWO_POINT_ON_MINUTES_IN_SECS
+        const defaultCliff = TWENTY_ONE_SECS
 
         // Contracts are deployed using the first signer/account by default
-        const [owner, otherAccount] = await ethers.getSigners();
+        const [owner, otherAccount, thirdAccount] = await ethers.getSigners();
 
         const Token = await ethers.getContractFactory("Vesting");
         const token = await Token.deploy(totalSupply, defaultCliff, defaultDuration);
 
-        return { token, owner, otherAccount, totalSupply, defaultCliff, defaultDuration };
+        return { token, owner, otherAccount, thirdAccount, totalSupply, defaultCliff, defaultDuration };
     }
 
     describe("Deployment", () => {
@@ -56,21 +56,21 @@ describe("Vesting", () => {
 
     describe("Transfers", () => {
 
-        
+
     })
-    
+
     describe("Schedules", () => {
-        
+
         it("Should create a schedule", async () => {
             const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
             const amount = totalSupply.div(100);
-    
+
             let startTimes;
             [startTimes] = await token.getSchedulesByAddress(otherAccount.address);
             expect(startTimes.length).to.equal(0);
-    
+
             await token.transfer(otherAccount.address, amount);
-    
+
             [startTimes] = await token.getSchedulesByAddress(otherAccount.address)
             expect(startTimes.length).to.equal(1);
         })
@@ -192,7 +192,7 @@ describe("Vesting", () => {
         })
 
         it("Should get total vested amount for address", async () => {
-            const { token, owner, otherAccount, totalSupply, defaultCliff, defaultDuration } = await loadFixture(deployVestingFixture);
+            const { token, otherAccount, totalSupply, defaultCliff, defaultDuration } = await loadFixture(deployVestingFixture);
             const amount = totalSupply.div(100);
 
             const tx = await token.transfer(otherAccount.address, amount.div(2));
@@ -217,6 +217,62 @@ describe("Vesting", () => {
 
             expect(await token.getTotalVestedAmountByAddress(otherAccount.address)).to.equal(totalVestedAmount);
         })
+
+    })
+
+    describe("Custom Schedule", () => {
+
+        it("Should revert if non owner calls createCustomSchedule", async () => {
+            const { token, otherAccount, thirdAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const cliff = 21 * 24 * 60 * 60 * 2;
+            const duration = 21 * 60 / 10 * 2;
+
+            await expect(token.connect(otherAccount).createCustomSchedule(thirdAccount.address, cliff, duration, amount)).to.be.revertedWith("Ownable: caller is not the owner");
+        })
+
+        it("Should revert if cliff less than defaultCliff", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const cliff = 10
+            const duration = 21 * 24 * 60 * 60 * 2
+
+            await expect(token.createCustomSchedule(otherAccount.address, cliff, duration, amount)).to.be.revertedWith("Schedule: cliff less than defaultCliff.");
+        })
+
+        it("Should revert if duration less than defaultDuration", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const cliff = 30
+            const duration = 21 * 24 * 60 * 60 / 2
+
+            await expect(token.createCustomSchedule(otherAccount.address, cliff, duration, amount)).to.be.revertedWith("Schedule: duration less than defaultDuration.");
+        })
+
+        it("Should create a custom schedule", async () => {
+            const { token, otherAccount, totalSupply } = await loadFixture(deployVestingFixture);
+            const amount = totalSupply.div(100);
+
+            const expCliff = 21 * 60
+            const expDuration = 210 * 24 * 60 * 60
+
+            await expect(token.getScheduleByAddressAndIndex(otherAccount.address, 0)).to.be.reverted
+            
+            await token.createCustomSchedule(otherAccount.address, expCliff, expDuration, amount)
+
+            const [startTime, cliff, duration, totalAmount, releasedAmount] = await token.getScheduleByAddressAndIndex(otherAccount.address, 0)
+
+            expect(cliff).to.equal(expCliff)
+            expect(duration).to.equal(expDuration)
+
+            expect(await token.balanceOf(otherAccount.address)).to.equal(amount)
+
+        })
+
+
 
     })
 })

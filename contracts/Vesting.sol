@@ -35,7 +35,7 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
 
     constructor(
         uint256 _totalSupply,
-        uint256 _cliff,
+        uint _cliff,
         uint _duration
     ) ERC20(_name, _symbol) {
         _mint(msg.sender, _totalSupply);
@@ -259,6 +259,19 @@ contract Vesting is ERC20, Ownable, ReentrancyGuard {
     }
 
     // PUBLIC ACTIONS
+
+    function createCustomSchedule(address to, uint cliff, uint duration, uint256 amount) public onlyOwner returns (bool) {
+        // console.log("defaultCliff: ", defaultCliff);
+        // console.log("cliff: ", cliff);
+        // console.log("defaultDuration: ", defaultDuration);
+        // console.log("duration: ", duration);
+
+        require(cliff >= defaultCliff, "Schedule: cliff less than defaultCliff.");
+        require(duration >= defaultDuration, "Schedule: duration less than defaultDuration.");
+        _transfer(msg.sender, to, amount);
+        _createSchedule(to, cliff, duration, amount);
+        return true;
+    }
 
     function transfer(address recipient, uint256 amount)
         public
